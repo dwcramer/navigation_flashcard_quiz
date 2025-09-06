@@ -324,6 +324,17 @@ const NavigationFlashcardQuiz = () => {
             <li><strong>Filter by Topic:</strong> Focus on specific navigation concepts</li>
             <li><strong>Shuffle:</strong> Randomize card order for better learning</li>
           </ul>
+          
+          <div className="mt-4 pt-4 border-t border-blue-200">
+            <a 
+              href="./navigation_flashcard_quiz.csv" 
+              download="navigation_flashcard_quiz.csv"
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 underline"
+              title="Download CSV file suitable for import into Anki or other flashcard apps"
+            >
+              📥 Download CSV file
+            </a>
+          </div>
         </div>
       </div>
     </div>
