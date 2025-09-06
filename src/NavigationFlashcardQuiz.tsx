@@ -11,6 +11,18 @@ const NavigationFlashcardQuiz = () => {
   const [allTags, setAllTags] = useState([]);
   const [quizMode, setQuizMode] = useState('study'); // 'study' or 'test'
 
+  // Sanitize CSV content to prevent potential issues
+  const sanitizeText = (text) => {
+    if (!text || typeof text !== 'string') return '';
+    // Remove potentially dangerous characters and scripts
+    return text
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .trim();
+  };
+
   // Load flashcards data
   useEffect(() => {
     const loadFlashcards = async () => {
@@ -47,9 +59,9 @@ const NavigationFlashcardQuiz = () => {
           
           if (values.length >= 3) {
             cards.push({
-              front: values[0],
-              back: values[1],
-              tags: values[2]
+              front: sanitizeText(values[0]),
+              back: sanitizeText(values[1]),
+              tags: sanitizeText(values[2])
             });
           }
         }
