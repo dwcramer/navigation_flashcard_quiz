@@ -15,7 +15,7 @@ const NavigationFlashcardQuiz = () => {
   useEffect(() => {
     const loadFlashcards = async () => {
       try {
-        const response = await fetch('/navigation_flashcard_quiz.csv');
+        const response = await fetch('./navigation_flashcard_quiz.csv');
         const csvContent = await response.text();
         
         // Parse CSV manually to handle potential parsing issues
