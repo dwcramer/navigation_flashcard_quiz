@@ -29,7 +29,7 @@ const NavigationFlashcardQuiz = () => {
   useEffect(() => {
     const loadFlashcards = async () => {
       try {
-        const response = await fetch('./navigation_flashcard_quiz.csv');
+        const response = await fetch('/navigation_flashcard_quiz/navigation_flashcard_quiz.csv');
         const csvContent = await response.text();
         
         // Parse CSV manually to handle potential parsing issues
@@ -200,7 +200,7 @@ const NavigationFlashcardQuiz = () => {
     return (
       <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-blue-900 mb-4">Practical Navigation Quiz</h1>
+          <h1 className="text-3xl font-bold text-blue-900 mb-4">ASA 105 and 106 Quiz</h1>
           <p className="text-gray-600">Loading flashcards...</p>
         </div>
       </div>
@@ -212,7 +212,7 @@ const NavigationFlashcardQuiz = () => {
       <div className="bg-white rounded-lg shadow-lg p-6">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-900 mb-2">⚓ Practical Navigation Quiz</h1>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">⚓ ASA 105 and 106 Quiz</h1>
           <p className="text-gray-600">Master the fundamentals of marine navigation</p>
         </div>
 
@@ -320,23 +320,34 @@ const NavigationFlashcardQuiz = () => {
         </div>
 
         {/* Flashcard */}
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg p-8 text-white mb-6 min-h-[300px] flex flex-col justify-center">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold mb-4">
-              {showAnswer ? "Answer:" : "Question:"}
-            </h2>
-            <p className="text-lg leading-relaxed">
-              {showAnswer ? currentCard.back : currentCard.front}
-            </p>
-            
-            {showAnswer && currentCard.tags && (
-              <div className="mt-6 pt-4 border-t border-blue-400">
-                <p className="text-sm text-blue-200">
-                  Tags: {currentCard.tags}
-                </p>
-              </div>
-            )}
+        <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg p-8 text-white mb-6">
+          {/* Question - centered with minimal padding */}
+          <div className="py-8 text-center">
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Question:</h2>
+              <p className="text-lg leading-relaxed">
+                {currentCard.front}
+              </p>
+            </div>
           </div>
+          
+          {/* Answer - expands the box when shown */}
+          {showAnswer && (
+            <div className="border-t border-blue-400 pt-6 text-center">
+              <h2 className="text-xl font-semibold mb-4">Answer:</h2>
+              <p className="text-lg leading-relaxed">
+                {currentCard.back}
+              </p>
+              
+              {currentCard.tags && (
+                <div className="mt-6 pt-4 border-t border-blue-400">
+                  <p className="text-sm text-blue-200">
+                    Tags: {currentCard.tags}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Card Controls */}
@@ -418,7 +429,7 @@ const NavigationFlashcardQuiz = () => {
           
           <div className="mt-4 pt-4 border-t border-blue-200">
             <a 
-              href="./navigation_flashcard_quiz.csv" 
+              href="/navigation_flashcard_quiz/navigation_flashcard_quiz.csv" 
               download="navigation_flashcard_quiz.csv"
               className="inline-flex items-center text-blue-600 hover:text-blue-800 underline"
               title="Download CSV file suitable for import into Anki or other flashcard apps"
