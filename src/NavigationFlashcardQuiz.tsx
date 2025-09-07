@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shuffle, RotateCcw, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
+import { Shuffle, RotateCcw, CheckCircle, XCircle, Eye, EyeOff, ChevronDown } from 'lucide-react';
 
 const NavigationFlashcardQuiz = () => {
   const [flashcards, setFlashcards] = useState([]);
@@ -10,6 +10,8 @@ const NavigationFlashcardQuiz = () => {
   const [filteredCards, setFilteredCards] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [quizMode, setQuizMode] = useState('study'); // 'study' or 'test'
+  const [selectedDifficulties, setSelectedDifficulties] = useState(['easy', 'medium', 'hard']);
+  const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
 
   // Sanitize CSV content to prevent potential issues
   const sanitizeText = (text) => {
@@ -85,19 +87,44 @@ const NavigationFlashcardQuiz = () => {
     loadFlashcards();
   }, []);
 
-  // Filter cards based on selected tags
+  // Filter cards based on selected tags and difficulties
   useEffect(() => {
-    if (selectedTags === 'all') {
-      setFilteredCards(flashcards);
-    } else {
-      const filtered = flashcards.filter(card => 
+    let filtered = flashcards;
+    
+    // Filter by topic tags
+    if (selectedTags !== 'all') {
+      filtered = filtered.filter(card => 
         card.tags && card.tags.includes(selectedTags)
       );
-      setFilteredCards(filtered);
     }
+    
+    // Filter by difficulty
+    if (selectedDifficulties.length > 0) {
+      filtered = filtered.filter(card => {
+        if (!card.tags) return false;
+        const cardTags = card.tags.toLowerCase();
+        return selectedDifficulties.some(difficulty => 
+          cardTags.includes(difficulty.toLowerCase())
+        );
+      });
+    }
+    
+    setFilteredCards(filtered);
     setCurrentCardIndex(0);
     setShowAnswer(false);
-  }, [selectedTags, flashcards]);
+  }, [selectedTags, selectedDifficulties, flashcards]);
+
+  // Close difficulty dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDifficultyDropdown && !event.target.closest('.difficulty-dropdown')) {
+        setShowDifficultyDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDifficultyDropdown]);
 
   const currentCard = filteredCards[currentCardIndex];
 
@@ -147,6 +174,28 @@ const NavigationFlashcardQuiz = () => {
     return total === 0 ? 0 : Math.round((score.correct / total) * 100);
   };
 
+  const toggleDifficulty = (difficulty) => {
+    setSelectedDifficulties(prev => {
+      if (prev.includes(difficulty)) {
+        return prev.filter(d => d !== difficulty);
+      } else {
+        return [...prev, difficulty];
+      }
+    });
+  };
+
+  const getDifficultyLabel = () => {
+    if (selectedDifficulties.length === 3) {
+      return 'All Difficulties';
+    } else if (selectedDifficulties.length === 0) {
+      return 'No Difficulties Selected';
+    } else {
+      return selectedDifficulties
+        .map(d => d.charAt(0).toUpperCase() + d.slice(1))
+        .join(', ');
+    }
+  };
+
   if (!currentCard) {
     return (
       <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
@@ -182,6 +231,36 @@ const NavigationFlashcardQuiz = () => {
               </option>
             ))}
           </select>
+
+          {/* Difficulty Multiselect */}
+          <div className="relative difficulty-dropdown">
+            <button
+              onClick={() => setShowDifficultyDropdown(!showDifficultyDropdown)}
+              className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white hover:bg-gray-50 min-w-[200px] justify-between"
+            >
+              <span className="truncate">{getDifficultyLabel()}</span>
+              <ChevronDown size={16} className={`transition-transform ${showDifficultyDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showDifficultyDropdown && (
+              <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                {['easy', 'medium', 'hard'].map(difficulty => (
+                  <label
+                    key={difficulty}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedDifficulties.includes(difficulty)}
+                      onChange={() => toggleDifficulty(difficulty)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="capitalize">{difficulty}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Quiz Mode Toggle */}
           <div className="flex bg-gray-100 rounded-md">
@@ -250,7 +329,7 @@ const NavigationFlashcardQuiz = () => {
               {showAnswer ? currentCard.back : currentCard.front}
             </p>
             
-            {currentCard.tags && (
+            {showAnswer && currentCard.tags && (
               <div className="mt-6 pt-4 border-t border-blue-400">
                 <p className="text-sm text-blue-200">
                   Tags: {currentCard.tags}
